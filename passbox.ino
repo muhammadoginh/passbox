@@ -6,22 +6,22 @@ Program passbox
 Ticker ticker;
 
 // digital pin D34 akan mendeteksi ada tidaknya logam, LED D5 akan mati (bernilai 0) jika sensor mendeteksi logam
-int fr_door_sensor = 34;
+#define fr_door_sensor 34
 
 // digital pin D32 akan mendeteksi ada tidaknya logam, LED D7 akan mati (bernilai 0) jika sensor mendeteksi logam
-int rr_door_sensor = 32;
+#define rr_door_sensor 32
 
 // digital pin D35 akan mendeteksi ada tidaknya tangan, LED D6 akan hidup (bernilai 1) jika sensor mendeteksi tangan
-int fr_hand_sensor = 35;
+#define fr_hand_sensor 35
 
 // digital pin D33 akan mendeteksi ada tidaknya tangan, LED D8 akan hidup (bernilai 1) jika sensor mendeteksi tangan
-int rr_hand_sensor = 33;
+#define rr_hand_sensor 33
 
 // setup pin D27 for fr_lock
-int fr_lock = 27;
+#define fr_lock 27
 
 // setup pin D14 for rr_lock
-int rr_lock = 14;
+#define rr_lock 14
 
 // fr hand sensor hanya boleh sekali, ketika sudah dibuka akan bernilai false
 bool bool_fr_hand_sensor = true;
@@ -29,18 +29,18 @@ bool bool_fr_hand_sensor = true;
 bool bool_rr_hand_sensor = true;
 
 // indikator led
-int fr_lamp = 19;
-int fr_uv = 21;
-int fr_go = 23;
-int fr_wait = 22;
-int rr_lamp = 2;
-int rr_uv = 4;
-int rr_go = 18;
-int rr_wait = 5;
+#define fr_lamp 19
+#define fr_uv 21
+#define fr_go 23
+#define fr_wait 22
+#define rr_lamp 2
+#define rr_uv 4
+#define rr_go 18
+#define rr_wait 5
 
 // lampu led dan uv AC
-int uv = 12; 
-int led = 13;
+#define uv 12
+#define led 13
 
 bool menutup_dari_depan = false;
 bool menutup_dari_belakang = false;
@@ -49,7 +49,10 @@ int inisialisasi_pintu_depan = 0;
 
 int count_waktu_tunggu_uv = 0;
 int batas_count_waktu_tunggu_uv = 0;
-int waktu_tunggu = 0;
+int waktu_tunggu = 0; // dalam menit
+
+int iterasi_delay;
+#define faktor_waktu_tunggu 600
 
 
 void setup() {
@@ -127,36 +130,6 @@ void loop() {
     menutup_dari_depan = false;
     menutup_dari_belakang = false;
 
-    // if (bacaan_fr_hand_sensor) {
-    //   if ((batas_count_waktu_tunggu_uv  - count_waktu_tunggu_uv) < 3) {
-    //     if (inisialisasi_pintu_depan < 3) {
-    //       // tanda bisa nyeting lampu go kedip2
-    //       inisialisasi_pintu_depan = inisialisasi_pintu_depan + 1;
-    //       digitalWrite(fr_go, LOW);
-    //       delay(100);     
-    //     } else {
-    //       digitalWrite(fr_go, HIGH);
-    //       delay(100);
-    //       count_waktu_tunggu_uv = count_waktu_tunggu_uv + 1;
-    //       batas_count_waktu_tunggu_uv = batas_count_waktu_tunggu_uv + 1;
-    //       digitalWrite(fr_go, LOW);
-    //       delay(100);
-    //     }
-    //   } else {
-    //     waktu_tunggu = count_waktu_tunggu_uv;
-    //     Serial.println(waktu_tunggu);
-    //     digitalWrite(fr_go, HIGH);
-    //     delay(100);
-    //   }
-    // } else {
-    //   digitalWrite(fr_go, HIGH);
-    //   delay(100);
-    //   batas_count_waktu_tunggu_uv = batas_count_waktu_tunggu_uv + 1;
-    //   digitalWrite(fr_go, LOW);
-    //   delay(100); 
-    // }
-
-
   } else if (!bacaan_fr_door_sensor && bacaan_rr_door_sensor) {
     // pada saat salah satu pintu terbuka, jika rr door sensor terbuka maka D2 rr_lamp, D18 rr_go, D22 fr_wait, dan D19 fr_lamp menyala
     digitalWrite(rr_lamp, HIGH);
@@ -191,10 +164,14 @@ void loop() {
       
       digitalWrite(led, LOW);
 
-      delay(2400000); // atur, aslinya 40 menit
-      // count_waktu_tunggu_uv = 0;
-      // batas_count_waktu_tunggu_uv = 0;
-      // waktu_tunggu = 0;
+      // waktu tunggu 40 menit 
+      waktu_tunggu = 40;
+      iterasi_delay = 0;
+      Serial.println(waktu_tunggu*faktor_waktu_tunggu);
+      while (iterasi_delay < waktu_tunggu*faktor_waktu_tunggu) {
+        delay(100);
+        iterasi_delay = iterasi_delay + 1;
+      }
 
       digitalWrite(uv, LOW);
       digitalWrite(fr_uv, LOW);
@@ -298,19 +275,19 @@ void loop() {
 }
 
 void door_lock() {
-  // ESP.rest*`
-  ``+art();
   if (digitalRead(fr_hand_sensor)) {
     bool_fr_hand_sensor = false; // sudah membuka (hanya untuk satu kali)
     delay(500);
     digitalWrite(fr_lock, HIGH);
     delay(50);
     digitalWrite(fr_lock, LOW);
+    waktu_tunggu = 0; // waktu tunggu direset jadi 0
   } else if (digitalRead(rr_hand_sensor)) {
     bool_rr_hand_sensor = false; // sudah membuka (hanya untuk satu kali)
     delay(500);
     digitalWrite(rr_lock, HIGH);
     delay(50);
     digitalWrite(rr_lock, LOW);
+    waktu_tunggu = 0; // waktu tunggu direset jadi 0
   }
 }
