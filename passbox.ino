@@ -235,7 +235,9 @@ void loop() {
   }
 
   if (bacaan_fr_hand_sensor && bool_fr_hand_sensor && bool_rr_hand_sensor && !bacaan_fr_door_sensor) {
-    bool_fr_hand_sensor = false; // sudah membuka (hanya untuk satu kali)
+    // ini adalah state dimana pintu depan dibuka, ketika pintu depan dibuka maka bool_fr_hand_sensor bernilai false menandakan 
+    // bacaan_fr_hand_sensor tidak akan menghidupkan motor untuk membuka pintu depan saat kondisi ini
+    bool_fr_hand_sensor = false; // state dimana pintu depan sedang membuka
     delay(500);
     digitalWrite(fr_lock, HIGH);
     delay(50);
@@ -250,7 +252,7 @@ void loop() {
     digitalWrite(rr_lock, LOW);
   }
 
-  // ketika pintu fr ditutup
+  // ketika pintu fr membuka dan akan ditutup
   if (bacaan_fr_door_sensor && !bacaan_rr_door_sensor) {
     menutup_dari_depan = true;
     bool_fr_hand_sensor = false; // tidak dapat dibuka lagi karena sudah terbuka
@@ -275,14 +277,14 @@ void loop() {
 }
 
 void door_lock() {
-  if (digitalRead(fr_hand_sensor)) {
+  if (digitalRead(fr_hand_sensor) && !bool_rr_hand_sensor && bool_fr_hand_sensor) {
     bool_fr_hand_sensor = false; // sudah membuka (hanya untuk satu kali)
     delay(500);
     digitalWrite(fr_lock, HIGH);
     delay(50);
     digitalWrite(fr_lock, LOW);
     waktu_tunggu = 0; // waktu tunggu direset jadi 0
-  } else if (digitalRead(rr_hand_sensor)) {
+  } else if (digitalRead(rr_hand_sensor) && !bool_fr_hand_sensor && bool_rr_hand_sensor) {
     bool_rr_hand_sensor = false; // sudah membuka (hanya untuk satu kali)
     delay(500);
     digitalWrite(rr_lock, HIGH);
