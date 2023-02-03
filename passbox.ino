@@ -24,9 +24,13 @@ Ticker ticker;
 #define rr_lock 14
 
 // fr hand sensor hanya boleh sekali, ketika sudah dibuka akan bernilai false
-bool bool_fr_hand_sensor = true;
+bool bool_fr_hand_sensor = true; // status yang menunjukkan pintu terbuka atau tertutup, jika nilai true artinya pintu tertutup sehingga
+// jika tangan di dekatkan (fr_hand_sensor diberi high) maka fr_lock akan menyala dan pintu terbuka
+// jika false pintu artinya pintu sedang terbuka, ketika tangan di dekatkan (fr_hand_sensor diberi high) maka fr_lock tidak akan menyala
+
 // fr hand sensor hanya boleh sekali, ketika sudah dibuka akan bernilai false
-bool bool_rr_hand_sensor = true;
+bool bool_rr_hand_sensor = true; // status yang menunjukkan pintu terbuka atau tertutup, jika nilai true artinya pintu tertutup
+// nilai ini akan dirubah oleh rr_door_sensor
 
 // indikator led
 #define fr_lamp 19
@@ -39,16 +43,16 @@ bool bool_rr_hand_sensor = true;
 #define rr_wait 5
 
 // lampu led dan uv AC
-#define uv 12
-#define led 13
+#define uv 12   // pin yang digunakan untuk on/off lampu uv
+#define led 13  // pin yang digunakan untuk on/off lampu led
 
-bool menutup_dari_depan = false;
-bool menutup_dari_belakang = false;
+bool menutup_dari_depan = false;      // bernilai true kondisi menutup dari depan
+bool menutup_dari_belakang = false;   // bernilai true kondisi menutup dari belakang
 
 int inisialisasi_pintu_depan = 0;
 
-int count_waktu_tunggu_uv = 0;
-int batas_count_waktu_tunggu_uv = 0;
+int count_waktu_tunggu_uv = 0; // gak kepake
+int batas_count_waktu_tunggu_uv = 0; // gak kepake
 int waktu_tunggu = 0; // dalam menit
 
 int iterasi_delay;
